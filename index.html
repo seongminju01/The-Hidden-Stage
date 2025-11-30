@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>The Hidden Stage</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- 검색에 안 뜨게(가능한 한) -->
   <meta name="robots" content="noindex, nofollow" />
   <style>
     * {
@@ -19,6 +18,8 @@
       justify-content: center;
       padding: 24px 16px;
       font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      color: #f5f5f5;
+      min-height: 100vh;
     }
 
     .wrap {
@@ -52,45 +53,128 @@
       pointer-events: none;
 
       opacity: 0;
-      animation: fadeIn 0.9s ease-out forwards;
+      transition: opacity 1.2s ease; /* 천천히 페이드 */
     }
 
-    /* 순차 등장 딜레이 */
-    .text-1 { animation-delay: 0.6s; }
-    .text-2 { animation-delay: 1.2s; }
-    .text-3 { animation-delay: 1.8s; }
-    .text-4 { animation-delay: 2.4s; }
+    /* 현재 보여지는 레이어 */
+    .text-layer.active {
+      opacity: 1;
+    }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+    .hint {
+      font-size: 0.75rem;
+      color: #888;
+      text-align: center;
+      margin-top: 10px;
     }
 
     .footer {
-      font-size: 0.72rem;
-      color: #777;
+      font-size: 0.7rem;
+      color: #666;
       text-align: center;
-      margin-top: 12px;
+      margin-top: 4px;
     }
   </style>
 </head>
 <body>
   <main class="wrap">
-
     <div class="poster-frame">
       <!-- 고정 배경 포스터 -->
       <img class="poster-bg" src="bg-poster.png" alt="The Hidden Stage Background" />
 
-      <!-- 텍스트 레이어 (투명 PNG) -->
-      <img class="text-layer text-1" src="text-1.png" alt="Text 1" />
-      <img class="text-layer text-2" src="text-2.png" alt="Text 2" />
-      <img class="text-layer text-3" src="text-3.png" alt="Text 3" />
-      <img class="text-layer text-4" src="text-4.png" alt="Text 4" />
+      <!-- 투명 PNG 텍스트 (겹쳐 놓고 JS로 하나씩만 보이게) -->
+      <img class="text-layer active" src="text-1.png" alt="Text 1" />
+      <img class="text-layer" src="text-2.png" alt="Text 2" />
+      <img class="text-layer" src="text-3.png" alt="Text 3" />
+      <img class="text-layer" src="text-4.png" alt="Text 4" />
     </div>
 
+    <p class="hint">
+      화면을 <strong>탭/클릭</strong>하거나 <strong>아래로 스크롤</strong>하면 다음 단계로 넘어갑니다.
+    </p>
     <p class="footer">
       The Hidden Stage – Stage Project Hidden Members Only
     </p>
   </main>
-</body>
+
+  <script>
+    // 텍스트 레이어들 모으기
+    const layers = Array.from(document.querySelectorAll('.text-layer'));
+    let currentIndex = 0;
+    let lastTriggerTime = 0;
+    const MIN_INTERVAL = 700; // 0.7초 안에는 연속 입력 무시 (너무 빨리 안 넘어가게)
+
+    function showSlide(index) {
+      layers.forEach((layer, i) => {
+        if (i === index) {
+          layer.classList.add('active');
+        } else {
+          layer.classList.remove('active');
+        }
+      });
+    }
+
+    function nextSlide() {
+      const now = Date.now();
+      if (now - lastTriggerTime < MIN_INTERVAL) return; // 너무 잦은 입력 방지
+      lastTriggerTime = now;
+
+      if (currentIndex < layers.length - 1) {
+        currentIndex += 1;
+        showSlide(currentIndex);
+      }
+      // 마지막 슬라이드에서는 더 이상 넘어가지 않음
+    }
+
+    // 클릭 / 탭
+    document.addEventListener('click', (e) => {
+      nextSlide();
+    });
+
+    // 키보드 (스페이스, 엔터, 아래/오른쪽 화살표)
+    document.addEventListener('keydown', (e) => {
+      const keys = [' ', 'Enter', 'ArrowDown', 'ArrowRight'];
+      if (keys.includes(e.key)) {
+        e.preventDefault();
+        nextSlide();
+      }
+    });
+
+    // 스크롤 휠
+    document.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaY) > 10) {
+        e.preventDefault();
+        nextSlide();
+      }
+    }, { passive: false });
+
+    // 터치 (모바일 탭/스와이프)
+    let touchStartY = null;
+    document.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        touchStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      if (touchStartY === null) {
+        nextSlide(); // 그냥 탭처럼 처리
+        return;
+      }
+      const touchEndY = (e.changedTouches[0] || e.touches[0]).clientY;
+      const diffY = touchStartY - touchEndY;
+
+      // 살짝 위/아래로 스와이프해도 다음 단계
+      if (Math.abs(diffY) > 20) {
+        nextSlide();
+      } else {
+        // 거의 움직이지 않았으면 탭으로 간주
+        nextSlide();
+      }
+      touchStartY = null;
+    });
+
+    // 초기 상태 세팅
+    showSlide(currentIndex);
+  </script>
 </html>
