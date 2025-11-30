@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>The Hidden Stage</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- 검색에 안 뜨게(가능한 한) -->
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #050509;
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px;
+      font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .poster-frame {
+      position: relative;
+      width: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: #050509;
+    }
+
+    /* 고정 배경 */
+    .poster-bg {
+      width: 100%;
+      display: block;
+    }
+
+    /* 텍스트 레이어 공통 */
+    .text-layer {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+
+      opacity: 0;
+      animation: fadeIn 0.9s ease-out forwards;
+    }
+
+    /* 순차 등장 딜레이 */
+    .text-1 { animation-delay: 0.6s; }
+    .text-2 { animation-delay: 1.2s; }
+    .text-3 { animation-delay: 1.8s; }
+    .text-4 { animation-delay: 2.4s; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .footer {
+      font-size: 0.72rem;
+      color: #777;
+      text-align: center;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+
+    <div class="poster-frame">
+      <!-- 고정 배경 포스터 -->
+      <img class="poster-bg" src="bg-poster.png" alt="The Hidden Stage Background" />
+
+      <!-- 텍스트 레이어 (투명 PNG) -->
+      <img class="text-layer text-1" src="text-1.png" alt="Text 1" />
+      <img class="text-layer text-2" src="text-2.png" alt="Text 2" />
+      <img class="text-layer text-3" src="text-3.png" alt="Text 3" />
+      <img class="text-layer text-4" src="text-4.png" alt="Text 4" />
+    </div>
+
+    <p class="footer">
+      The Hidden Stage – Stage Project Hidden Members Only
+    </p>
+  </main>
+</body>
+</html>
